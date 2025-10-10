@@ -15,15 +15,22 @@ function App() {
     });
     const [complexityText, setComplexityText] = useState("");
 
-    // Should look at the complexity graph values
-    // to determine a time and space complexity
-    function analyzecomplexities() {
-        return
-    }
 
-    // Compile code and return output printed
-    function displayoutput() {
-        return
+    // Sends data to backend server (FastAPI) via POST
+    // Backend returns code execution and performance results
+    // Updates necessary variables to be displayed in UI
+    async function analyzecomplexities() {
+        const response = await fetch("http://localhost:8000/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: codeInput })
+        });
+
+        const data = await response.json();
+
+        setCodeOutput(data.output);
+        setComplexityText(data.complexity);
+        setComplexityGraph(data.graphData);
     }
 
     return(
@@ -50,8 +57,7 @@ function App() {
             value={complexityText}
             placeholder="Complexities here."
         />
-        <button onClick={analyzecomplexities}> ANALYZE COMPLEXITIES</button>
-        <button onClick={displayoutput}> DISPLAY OUTPUT</button>
+        <button onClick={analyzecomplexities}>ANALYZE COMPLEXITIES</button>
     </div>
     );
 }
