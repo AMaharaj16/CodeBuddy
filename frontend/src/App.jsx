@@ -5,6 +5,7 @@ function App() {
     // useState returns its parameter (variable set equal to it) 
     // and a function to change the variables value at render.
     const [codeInput, setCodeInput] = useState("");
+    const [testInput, setTestInput] = useState("");
     const [codeOutput, setCodeOutput] = useState("");
 
     // Will pass this data to graphs later
@@ -40,6 +41,12 @@ function App() {
             value={codeInput}
             onChange={(e) => setCodeInput(e.target.value)}
             placeholder="Input your code here."
+        />
+        <textarea
+            className="box"
+            value={testInput}
+            onChange={(e) => setTestInput(e.target.value)}
+            placeholder="Write your test cases here."
         />
         <textarea 
             className="box"
