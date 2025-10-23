@@ -24,7 +24,10 @@ function App() {
         const response = await fetch("http://localhost:8000/analyze", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code: codeInput })
+            body: JSON.stringify({ 
+                code: codeInput,
+                testInput: testInput
+             })
         });
 
         const data = await response.json();
@@ -32,6 +35,13 @@ function App() {
         setCodeOutput(data.output);
         setComplexityText(data.complexity);
         setComplexityGraph(data.graphData);
+    }
+
+    function resetPage() {
+        setCodeInput("");
+        setTestInput("");
+        setCodeOutput("");
+        setComplexityText("");
     }
 
     return(
@@ -65,6 +75,7 @@ function App() {
             placeholder="Complexities here."
         />
         <button onClick={analyzecomplexities}>ANALYZE COMPLEXITIES</button>
+        <button onClick={resetPage}>RESET</button>
     </div>
     );
 }
