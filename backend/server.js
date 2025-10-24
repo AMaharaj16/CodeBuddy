@@ -32,7 +32,7 @@ app.post("/analyze", async (req, res) => {
         // Wrapped code which can be executed
         const wrappedCode = `
             const solve = ${code};
-            output = solve(...(${JSON.stringify(testInput[i])}));
+            output = solve((${JSON.stringify(testInput[i])}));
         `;
 
         // Run code inside sandbox with timeout after 10 seconds
