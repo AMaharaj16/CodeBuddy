@@ -19,9 +19,12 @@ app.use(express.json());
 // Runs when React calls POST /analyze
 app.post("/analyze", async (req, res) => {
   const { code, testInput} = req.body;
+
+  let out = '';
   
   // TODO: Add functionality for multiple test cases here
-  try {
+  for (let i = 0; i < testInput.length; i++) {
+    try {
         // Create isolated environment
         const sandbox = { console, output: null };
         vm.createContext(sandbox);
@@ -29,24 +32,29 @@ app.post("/analyze", async (req, res) => {
         // Wrapped code which can be executed
         const wrappedCode = `
             const solve = ${code};
-            output = solve(...(${testInput}));
+            output = solve(...(${testInput[i]}));
         `;
 
         // Run code inside sandbox with timeout after 10 seconds
         vm.runInContext(wrappedCode, sandbox, {timeout: 10000});
 
-        res.json({
-            output: sandbox.output,
-            complexity: "TODO",
-            graphData: {}
-        });
+        out += sandbox.output;
     } catch (err) { // Catch and display error message in output
         res.json({
             output: "Error: " + err.message,
             complexity: "N/A",
             graphData: {}
         });
+        return;
     }
+
+  }
+
+  res.json({
+            output: out,
+            complexity: "TODO",
+            graphData: {}
+        });
 
     // TODO: Add complexity analysis functionality here
 });
