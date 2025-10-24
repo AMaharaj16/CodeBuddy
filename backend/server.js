@@ -20,7 +20,7 @@ app.use(express.json());
 app.post("/analyze", async (req, res) => {
   const { code, testInput} = req.body;
 
-  let out = '';
+  let outputs = [];
   
   // TODO: Add functionality for multiple test cases here
   for (let i = 0; i < testInput.length; i++) {
@@ -32,13 +32,13 @@ app.post("/analyze", async (req, res) => {
         // Wrapped code which can be executed
         const wrappedCode = `
             const solve = ${code};
-            output = solve(...(${testInput[i]}));
+            output = solve(...(${JSON.stringify(testInput[i])}));
         `;
 
         // Run code inside sandbox with timeout after 10 seconds
         vm.runInContext(wrappedCode, sandbox, {timeout: 10000});
 
-        out += sandbox.output;
+        outputs.push(sandbox.output);
     } catch (err) { // Catch and display error message in output
         res.json({
             output: "Error: " + err.message,
@@ -49,6 +49,8 @@ app.post("/analyze", async (req, res) => {
     }
 
   }
+
+  const out = outputs.join("\n");
 
   res.json({
             output: out,
