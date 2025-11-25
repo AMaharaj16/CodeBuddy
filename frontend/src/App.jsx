@@ -9,11 +9,7 @@ function App() {
     const [codeOutput, setCodeOutput] = useState("");
 
     // Will pass this data to graphs later
-    const [complexityGraph, setComplexityGraph] = useState({
-        input_sizes : [],
-        runtimes : [],
-        memory_usage : []
-    });
+    const [complexityGraph, setComplexityGraph] = useState("");
     const [complexityText, setComplexityText] = useState("");
 
 
@@ -21,7 +17,7 @@ function App() {
     // Backend returns code execution and performance results
     // Updates necessary variables to be displayed in UI
     async function analyzecomplexities() {
-        const response = await fetch("http://localhost:8000/analyze", {
+        const run = await fetch("http://localhost:8000/run", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -30,11 +26,22 @@ function App() {
              })
         });
 
-        const data = await response.json();
+        const runOutput = await run.json();
 
-        setCodeOutput(JSON.stringify(data.output));
-        setComplexityText(data.complexity);
-        setComplexityGraph(data.graphData);
+        setCodeOutput(JSON.stringify(runOutput.output));
+        
+        const analyze = await fetch("http://localhost:8000/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                code: codeInput,
+                testInput: JSON.parse(testInput)[0] // Send first test input for analysis, will be scaled for graphing
+             })
+        }); 
+
+        const analyzeOutput = await analyze.json();
+
+        setComplexityGraph(analyzeOutput.output);
     }
 
     function resetPage() {
@@ -68,7 +75,7 @@ function App() {
         <textarea 
             className="box"
             readOnly
-            value={JSON.stringify(complexityGraph, null, 2)}
+            value={complexityGraph}
         />
         <textarea 
             className="box"

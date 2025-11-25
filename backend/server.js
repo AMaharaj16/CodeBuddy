@@ -17,7 +17,7 @@ app.use(
 app.use(express.json());
 
 // Runs when React calls POST /analyze
-app.post("/analyze", async (req, res) => {
+app.post("/run", async (req, res) => {
   const { code, testInput} = req.body;
 
   let outputs = [];
@@ -58,12 +58,62 @@ app.post("/analyze", async (req, res) => {
   } 
 
   res.json({
-            output: outputs,
-            complexity: "TODO",
-            graphData: {}
+            output: outputs
+        });
+});
+
+app.post("/analyze", async (req, res) => {
+   const { code, testInput} = req.body;
+
+   let outputs = "";
+   let testInputs = [];
+   
+   // Create n inputs, each n times larger than the first test input.
+   for (let i = 1; i <= 10; i++) {
+    testInputs.push(testInput*i);
+   }
+
+   let start = 0;
+   let end = 0;
+   let time = 0;
+
+   for (const input of testInputs) {
+    try {
+        const sandbox = vm.createContext({
+        input : [input],
+        console: console
         });
 
-    // TODO: Add complexity analysis functionality here
+        // Use regular expressions to extract function name from code
+        const funcName = code.match(/function\s+([a-zA-Z0-9_]+)/)?.[1];
+
+        if (!funcName) throw new Error("No function found in code");
+
+        // Wrap code to call the function with test input
+        const wrappedCode = `
+        ${code}
+        ${funcName}(...input);
+        `;
+
+        const script = new vm.Script(wrappedCode);
+
+        start = performance.now();
+        script.runInContext(sandbox);
+        end = performance.now();
+        time = end - start;
+
+        outputs += input.toString() + " : " + time.toString() + "\n";
+    } catch(err) {
+        res.json({
+        output: "Error: " + err.message,
+        });
+        return;
+    }
+   };
+
+   res.json({
+            output: outputs
+        });
 });
 
 // Shown in terminal to ensure backend is running
