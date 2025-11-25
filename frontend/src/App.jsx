@@ -32,7 +32,7 @@ function App() {
 
         const data = await response.json();
 
-        setCodeOutput(data.output);
+        setCodeOutput(JSON.stringify(data.output));
         setComplexityText(data.complexity);
         setComplexityGraph(data.graphData);
     }
@@ -67,10 +67,12 @@ function App() {
     
         <textarea 
             className="box"
+            readOnly
             value={JSON.stringify(complexityGraph, null, 2)}
         />
         <textarea 
             className="box"
+            readOnly
             value={complexityText}
             placeholder="Complexities here."
         />

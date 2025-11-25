@@ -22,38 +22,43 @@ app.post("/analyze", async (req, res) => {
 
   let outputs = [];
   
-  // TODO: Add functionality for multiple test cases here
-  for (let i = 0; i < testInput.length; i++) {
-    try {
-        // Create isolated environment
-        const sandbox = { console, output: null };
-        vm.createContext(sandbox);
+  try {
+    const testInp = JSON.parse(testInput);
 
-        // Wrapped code which can be executed
-        const wrappedCode = `
-            const solve = ${code};
-            output = solve((${JSON.stringify(testInput[i])}));
-        `;
+    // Sandbox environment contains chosen variables and console
+    const sandbox = vm.createContext({
+        input : testInp,
+        console: console
+    });
 
-        // Run code inside sandbox with timeout after 10 seconds
-        vm.runInContext(wrappedCode, sandbox, {timeout: 10000});
+    // Use regular expressions to extract function name from code
+    const funcName = code.match(/function\s+([a-zA-Z0-9_]+)/)?.[1];
 
-        outputs.push(sandbox.output);
-    } catch (err) { // Catch and display error message in output
-        res.json({
-            output: "Error: " + err.message,
-            complexity: "N/A",
-            graphData: {}
-        });
-        return;
-    }
+    if (!funcName) throw new Error("No function found in code");
 
-  }
+    // Wrap code to call the function with test input
+    const wrappedCode = `
+    ${code}
+    ${funcName}(...input);
+    `;
 
-  const out = outputs.join("\n");
+    const script = new vm.Script(wrappedCode);
+    
+    let result = script.runInContext(sandbox);
+
+    outputs.push(result);
+
+  } catch(err) { // Catch and display error message in output
+    res.json({
+        output: "Error: " + err.message,
+        complexity: "N/A",
+        graphData: {}
+    });
+    return;
+  } 
 
   res.json({
-            output: out,
+            output: outputs,
             complexity: "TODO",
             graphData: {}
         });
