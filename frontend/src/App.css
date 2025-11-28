@@ -1,8 +1,38 @@
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100vh;
+  display: block;
+}
+
+.page {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.row {
+  display: flex;
+  width: 100%;
+  gap: 16px;
+}
+
+.column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .box {
   width: 100%;
-  height: 150px; /* or any visible height */
-  font-family: monospace;
-  font-size: 14px;
-  margin-bottom: 10px;
-  resize: none;
+  height: 240px;
+  padding: 12px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #1e1e1e;
+  color: white;
+  resize: vertical;
+  box-sizing: border-box;
 }

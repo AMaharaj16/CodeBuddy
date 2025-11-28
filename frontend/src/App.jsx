@@ -7,6 +7,7 @@ function App() {
     const [codeInput, setCodeInput] = useState("");
     const [testInput, setTestInput] = useState("");
     const [codeOutput, setCodeOutput] = useState("");
+    const [testScale, setTestScale] = useState("");
 
     // Will pass this data to graphs later
     const [complexityGraph, setComplexityGraph] = useState("");
@@ -47,42 +48,61 @@ function App() {
     function resetPage() {
         setCodeInput("");
         setTestInput("");
+        setTestScale("");
         setCodeOutput("");
         setComplexityText("");
     }
 
-    return(
+    return (
     <div>
-        <textarea 
-            className="box"
-            value={codeInput}
-            onChange={(e) => setCodeInput(e.target.value)}
-            placeholder="Input your code here."
-        />
-        <textarea
-            className="box"
-            value={testInput}
-            onChange={(e) => setTestInput(e.target.value)}
-            placeholder="Write your test cases here."
-        />
-        <textarea 
-            className="box"
-            readOnly
-            value={codeOutput}
-            placeholder="Code output here."
-        />
-    
-        <textarea 
-            className="box"
-            readOnly
-            value={complexityGraph}
-        />
-        <textarea 
-            className="box"
-            readOnly
-            value={complexityText}
-            placeholder="Complexities here."
-        />
+        <div className="row">
+            <div className="column">
+                <textarea
+                className="box"
+                value={codeInput}
+                onChange={(e) => setCodeInput(e.target.value)}
+                placeholder="Input your code here."
+                />
+
+                <textarea
+                className="box"
+                readOnly
+                value={codeOutput}
+                placeholder="Code output here."
+                />
+
+                <textarea
+                className="box"
+                readOnly
+                value={complexityText}
+                placeholder="Complexities here."
+                />
+            </div>
+
+            <div className="column">
+                <textarea
+                className="box"
+                value={testInput}
+                onChange={(e) => setTestInput(e.target.value)}
+                placeholder="Write your test cases here."
+                />
+
+                <textarea
+                className="box"
+                value={testScale}
+                onChange={(e) => setTestScale(e.target.value)}
+                placeholder="Test Scale!"
+                />
+
+                <textarea
+                className="box"
+                readOnly
+                value={complexityGraph}
+                placeholder="Complexity Graphs!"
+                />
+            </div>
+        </div>
+
         <button onClick={analyzecomplexities}>ANALYZE COMPLEXITIES</button>
         <button onClick={resetPage}>RESET</button>
     </div>
