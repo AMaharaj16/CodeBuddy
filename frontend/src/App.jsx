@@ -18,6 +18,8 @@ function App() {
     // Backend returns code execution and performance results
     // Updates necessary variables to be displayed in UI
     async function analyzecomplexities() {
+        setCodeOutput("Running test cases...")
+        setComplexityGraph("Running test cases...")
         const run = await fetch("http://localhost:8000/run", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -36,7 +38,8 @@ function App() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 code: codeInput,
-                testInput: JSON.parse(testInput)[0] // Send first test input for analysis, will be scaled for graphing
+                testInput: JSON.parse(testInput)[0], // Send first test input for analysis, will be scaled for graphing
+                testScale: testScale
              })
         }); 
 

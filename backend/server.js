@@ -22,56 +22,66 @@ app.post("/run", async (req, res) => {
 
   let outputs = [];
   
-  try {
-    const testInp = JSON.parse(testInput);
+  // Use regular expressions to extract function name from code
+  const funcName = code.match(/function\s+([a-zA-Z0-9_]+)/)?.[1];
+  
+  if (!funcName) throw new Error("No function found in code");
 
-    // Sandbox environment contains chosen variables and console
-    const sandbox = vm.createContext({
-        input : testInp,
-        console: console
-    });
+  // Wrap code to call the function with test input
+  const wrappedCode = `
+  ${code}
+  ${funcName}(input);
+  `;
 
-    // Use regular expressions to extract function name from code
-    const funcName = code.match(/function\s+([a-zA-Z0-9_]+)/)?.[1];
+  const script = new vm.Script(wrappedCode);
 
-    if (!funcName) throw new Error("No function found in code");
+  const parsedInputs = JSON.parse(testInput);
 
-    // Wrap code to call the function with test input
-    const wrappedCode = `
-    ${code}
-    ${funcName}(...input);
-    `;
-
-    const script = new vm.Script(wrappedCode);
+  for (const inp of parsedInputs) {
+    try {
+      // Sandbox environment contains chosen variables and console
+      const sandbox = vm.createContext({
+          input : inp,
+          console: console
+      });
     
-    let result = script.runInContext(sandbox);
+      let result = script.runInContext(sandbox);
+      outputs.push(result);
 
-    outputs.push(result);
-
-  } catch(err) { // Catch and display error message in output
-    res.json({
-        output: "Error: " + err.message,
-        complexity: "N/A",
-        graphData: {}
-    });
-    return;
+    } catch(err) { // Catch and display error message in output
+      res.json({
+          output: "Error: " + err.message,
+          complexity: "N/A",
+          graphData: {}
+      });
+      return;
+    }
   } 
 
   res.json({
             output: outputs
         });
+  return;
 });
 
 app.post("/analyze", async (req, res) => {
-   const { code, testInput} = req.body;
+   const { code, testInput, testScale} = req.body;
 
    let outputs = "";
    let testInputs = [];
    
    // Create n inputs, each n times larger than the first test input.
-   for (let i = 1; i <= 10; i++) {
+   for (let i = 1; i <= testScale; i++) {
     testInputs.push(testInput*i);
    }
+
+   const timer = setTimeout(() => {
+    res.json({
+        output: "Time Limit Exceeded: Please reduce input size."
+        });
+    clearTimeout(timer);
+    return;
+   }, 10000);
 
    let start = 0;
    let end = 0;
@@ -107,6 +117,7 @@ app.post("/analyze", async (req, res) => {
         res.json({
         output: "Error: " + err.message,
         });
+        clearTimeout(timer)
         return;
     }
    };
@@ -114,6 +125,7 @@ app.post("/analyze", async (req, res) => {
    res.json({
             output: outputs
         });
+    clearTimeout(timer)
 });
 
 // Shown in terminal to ensure backend is running
