@@ -125,7 +125,7 @@ function App() {
                 placeholder="Test Scale!"
                 />
 
-                <div className="box" style={{ background: "#1e1e1e" }}>
+                <div className="box" style={{ background: "white" }}>
                     {complexityGraph && complexityGraph.length > 0 ? (
                         <Scatter
                             data={{
