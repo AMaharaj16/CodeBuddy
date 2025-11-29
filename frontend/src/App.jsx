@@ -1,5 +1,15 @@
 import { useState } from "react";
+import { Scatter } from "react-chartjs-2";
 import "./App.css";
+import {
+    Chart as ChartJS,
+    LinearScale,
+    PointElement,
+    Tooltip,
+    Legend,
+} from "chart.js";
+
+ChartJS.register(LinearScale, PointElement, Tooltip, Legend);
 
 function App() {
     // useState returns its parameter (variable set equal to it) 
@@ -10,7 +20,7 @@ function App() {
     const [testScale, setTestScale] = useState("");
 
     // Will pass this data to graphs later
-    const [complexityGraph, setComplexityGraph] = useState("");
+    const [complexityGraph, setComplexityGraph] = useState([]);;
     const [complexityText, setComplexityText] = useState("");
 
 
@@ -18,8 +28,8 @@ function App() {
     // Backend returns code execution and performance results
     // Updates necessary variables to be displayed in UI
     async function analyzecomplexities() {
-        setCodeOutput("Running test cases...")
-        setComplexityGraph("Running test cases...")
+        setCodeOutput("Running test cases...");
+        setComplexityText("Running test cases...");
         const run = await fetch("http://localhost:8000/run", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -43,9 +53,12 @@ function App() {
              })
         }); 
 
+        // String containing input/time pairs
         const analyzeOutput = await analyze.json();
 
-        setComplexityGraph(analyzeOutput.output);
+        setComplexityText(analyzeOutput.output);
+        setComplexityGraph(parseTimeComplexityOutput(analyzeOutput.output)); // Parse input/time pairs for graphing
+
     }
 
     function resetPage() {
@@ -54,6 +67,21 @@ function App() {
         setTestScale("");
         setCodeOutput("");
         setComplexityText("");
+        setComplexityGraph("");
+    }
+
+    // Parses string input/time pairs into points for graphing
+    function parseTimeComplexityOutput(text) {
+        return text
+            .trim()
+            .split("\n")
+            .map(line => {
+                const [input, time] = line.split(":").map(s => s.trim());
+                return {
+                    x: Number(input),
+                    y: Number(time)
+                };
+            });
     }
 
     return (
@@ -97,12 +125,30 @@ function App() {
                 placeholder="Test Scale!"
                 />
 
-                <textarea
-                className="box"
-                readOnly
-                value={complexityGraph}
-                placeholder="Complexity Graphs!"
-                />
+                <div className="box" style={{ background: "#1e1e1e" }}>
+                    {complexityGraph && complexityGraph.length > 0 ? (
+                        <Scatter
+                            data={{
+                                datasets: [
+                                    {
+                                        label: "Input Size vs Time (ms)",
+                                        data: complexityGraph,
+                                        pointRadius: 5,
+                                    },
+                                ],
+                            }}
+                            options={{
+                                responsive: true,
+                                scales: {
+                                    x: { title: { display: true, text: "Input Size" } },
+                                    y: { title: { display: true, text: "Execution Time (ms)" } }
+                                }
+                            }}
+                        />
+                    ) : (
+                        <p>Complexity Graphs!</p>
+                    )}
+                </div>
             </div>
         </div>
 
