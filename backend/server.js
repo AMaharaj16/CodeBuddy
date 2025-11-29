@@ -69,19 +69,14 @@ app.post("/analyze", async (req, res) => {
 
    let outputs = "";
    let testInputs = [];
+
+   const maxTime = 5000; // If any case exceeds 5 seconds, return time limit exceeded warning.
    
    // Create n inputs, each n times larger than the first test input.
-   for (let i = 1; i <= testScale; i++) {
+   // In descending order so first case is largest and time limit exceeded warning returns sooner.
+   for (let i = testScale; i > 0; i--) {
     testInputs.push(testInput*i);
    }
-
-   const timer = setTimeout(() => {
-    res.json({
-        output: "Time Limit Exceeded: Please reduce input size."
-        });
-    clearTimeout(timer);
-    return;
-   }, 10000);
 
    let start = 0;
    let end = 0;
@@ -108,16 +103,23 @@ app.post("/analyze", async (req, res) => {
         const script = new vm.Script(wrappedCode);
 
         start = performance.now();
-        script.runInContext(sandbox);
+        try {
+            script.runInContext(sandbox, { timeout : maxTime });
+        } catch(err) {
+            res.json({
+              output: "Time Limit Exceeded: Reduce input size or test scale.",
+            });
+            return;
+        }
+        
         end = performance.now();
         time = end - start;
 
         outputs += input.toString() + " : " + time.toString() + "\n";
     } catch(err) {
         res.json({
-        output: "Error: " + err.message,
+          output: "Error: " + err.message,
         });
-        clearTimeout(timer)
         return;
     }
    };
@@ -125,7 +127,6 @@ app.post("/analyze", async (req, res) => {
    res.json({
             output: outputs
         });
-    clearTimeout(timer)
 });
 
 // Shown in terminal to ensure backend is running
