@@ -48,7 +48,7 @@ function App() {
         setCodeOutput(JSON.stringify(runOutput.output));
 
         // Run first test case with test scale and parse input/time pairs
-        const analyze = await fetch("http://localhost:8000/analyzetime", {
+        const time = await fetch("http://localhost:8000/analyzetime", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -59,9 +59,25 @@ function App() {
         }); 
 
         // String containing input/time pairs
-        const analyzeOutput = await analyze.json();
-        setTimeText(analyzeOutput.output);
-        setTimeGraph(parseTimeComplexityOutput(analyzeOutput.output)); // Parse input/time pairs for graphing
+        const timeOutput = await time.json();
+        setTimeText(timeOutput.output);
+        setTimeGraph(parseComplexityOutput(timeOutput.output)); // Parse input/time pairs for graphing
+
+        // Run first test case with test scale and parse input/memory pairs
+        const memory = await fetch("http://localhost:8000/analyzememory", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                code: codeInput,
+                testInput: JSON.parse(testInput)[0], // Send first test input for analysis, will be scaled for graphing
+                testScale: testScale
+             })
+        }); 
+
+        // String containing input/time pairs
+        const memoryOutput = await memory.json();
+        setMemoryText(memoryOutput.output);
+        setMemoryGraph(parseComplexityOutput(memoryOutput.output)); // Parse input/memory pairs for graphing
     }
 
     function resetPage() {
@@ -76,15 +92,15 @@ function App() {
     }
 
     // Parses string input/time pairs into points for graphing
-    function parseTimeComplexityOutput(text) {
+    function parseComplexityOutput(text) {
         return text
             .trim()
             .split("\n")
             .map(line => {
-                const [input, time] = line.split(":").map(s => s.trim());
+                const [input, usage] = line.split(":").map(s => s.trim());
                 return {
                     x: Number(input),
-                    y: Number(time)
+                    y: Number(usage)
                 };
             });
     }
@@ -168,7 +184,7 @@ function App() {
                             data={{
                                 datasets: [
                                     {
-                                        label: "Input Size vs Time (ms)",
+                                        label: "Input Size vs Memory (bytes)",
                                         data: memoryGraph,
                                         pointRadius: 5,
                                     },
@@ -178,7 +194,7 @@ function App() {
                                 responsive: true,
                                 scales: {
                                     x: { title: { display: true, text: "Input Size" } },
-                                    y: { title: { display: true, text: "Execution Time (ms)" } }
+                                    y: { title: { display: true, text: "Memory Usage (bytes)" } }
                                 }
                             }}
                         />

@@ -129,6 +129,71 @@ app.post("/analyzetime", async (req, res) => {
         });
 });
 
+app.post("/analyzememory", async (req, res) => {
+   const { code, testInput, testScale} = req.body;
+
+   let outputs = "";
+   let testInputs = [];
+
+   const maxTime = 5000; // If any case exceeds 5 seconds, return time limit exceeded warning.
+   
+   // Create n inputs, each n times larger than the first test input.
+   // In descending order so first case is largest and time limit exceeded warning returns sooner.
+   for (let i = testScale; i > 0; i--) {
+    testInputs.push(testInput*i);
+   }
+
+   let start = 0;
+   let end = 0;
+   let memory = 0;
+
+   for (const input of testInputs) {
+    try {
+        const sandbox = vm.createContext({
+        input : [input],
+        console: console
+        });
+
+        // Use regular expressions to extract function name from code
+        const funcName = code.match(/function\s+([a-zA-Z0-9_]+)/)?.[1];
+
+        if (!funcName) throw new Error("No function found in code");
+
+        // Wrap code to call the function with test input
+        const wrappedCode = `
+        ${code}
+        ${funcName}(...input);
+        `;
+
+        const script = new vm.Script(wrappedCode);
+
+        start = process.memoryUsage();
+        try {
+            script.runInContext(sandbox, { timeout : maxTime });
+        } catch(err) {
+            res.json({
+              output: "Time Limit Exceeded: Reduce input size or test scale.",
+            });
+            return;
+        }
+        
+        end = process.memoryUsage();
+        memory = end.heapUsed - start.heapUsed;
+
+        outputs += input.toString() + " : " + memory.toString() + "\n";
+    } catch(err) {
+        res.json({
+          output: "Error: " + err.message,
+        });
+        return;
+    }
+   };
+
+   res.json({
+            output: outputs
+        });
+});
+
 // Shown in terminal to ensure backend is running
 app.listen(8000, () => {
   console.log("Server running on port 8000");
