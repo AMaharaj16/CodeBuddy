@@ -17,7 +17,7 @@ app.use(
 app.use(express.json());
 
 // Runs when React calls POST /analyze
-app.post("/run", async (req, res) => {
+app.post("/runtests", async (req, res) => {
   const { code, testInput} = req.body;
 
   let outputs = [];
@@ -64,7 +64,7 @@ app.post("/run", async (req, res) => {
   return;
 });
 
-app.post("/analyze", async (req, res) => {
+app.post("/analyzetime", async (req, res) => {
    const { code, testInput, testScale} = req.body;
 
    let outputs = "";

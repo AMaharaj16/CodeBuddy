@@ -20,17 +20,22 @@ function App() {
     const [testScale, setTestScale] = useState("");
 
     // Will pass this data to graphs later
-    const [complexityGraph, setComplexityGraph] = useState([]);;
-    const [complexityText, setComplexityText] = useState("");
+    const [timeGraph, setTimeGraph] = useState([]);;
+    const [timeText, setTimeText] = useState("");
 
+    const [memoryGraph, setMemoryGraph] = useState([]);
+    const [memoryText, setMemoryText] = useState("");
 
     // Sends data to backend server (FastAPI) via POST
     // Backend returns code execution and performance results
     // Updates necessary variables to be displayed in UI
     async function analyzecomplexities() {
         setCodeOutput("Running test cases...");
-        setComplexityText("Running test cases...");
-        const run = await fetch("http://localhost:8000/run", {
+        setTimeText("Running test cases...");
+        setMemoryText("Running test cases...");
+
+        // Run test cases here and pass it to set output function
+        const run = await fetch("http://localhost:8000/runtests", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -40,10 +45,10 @@ function App() {
         });
 
         const runOutput = await run.json();
-
         setCodeOutput(JSON.stringify(runOutput.output));
-        
-        const analyze = await fetch("http://localhost:8000/analyze", {
+
+        // Run first test case with test scale and parse input/time pairs
+        const analyze = await fetch("http://localhost:8000/analyzetime", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -55,10 +60,8 @@ function App() {
 
         // String containing input/time pairs
         const analyzeOutput = await analyze.json();
-
-        setComplexityText(analyzeOutput.output);
-        setComplexityGraph(parseTimeComplexityOutput(analyzeOutput.output)); // Parse input/time pairs for graphing
-
+        setTimeText(analyzeOutput.output);
+        setTimeGraph(parseTimeComplexityOutput(analyzeOutput.output)); // Parse input/time pairs for graphing
     }
 
     function resetPage() {
@@ -66,8 +69,10 @@ function App() {
         setTestInput("");
         setTestScale("");
         setCodeOutput("");
-        setComplexityText("");
-        setComplexityGraph("");
+        setTimeText("");
+        setMemoryText("");
+        setTimeGraph([]);
+        setMemoryGraph([]);
     }
 
     // Parses string input/time pairs into points for graphing
@@ -105,8 +110,15 @@ function App() {
                 <textarea
                 className="box"
                 readOnly
-                value={complexityText}
-                placeholder="Complexities here."
+                value={timeText}
+                placeholder="Time Complexities here."
+                />
+
+                <textarea
+                className="box"
+                readOnly
+                value={memoryText}
+                placeholder="Memory Complexities here"
                 />
             </div>
 
@@ -126,13 +138,13 @@ function App() {
                 />
 
                 <div className="box" style={{ background: "white" }}>
-                    {complexityGraph && complexityGraph.length > 0 ? (
+                    {timeGraph && timeGraph.length > 0 ? (
                         <Scatter
                             data={{
                                 datasets: [
                                     {
                                         label: "Input Size vs Time (ms)",
-                                        data: complexityGraph,
+                                        data: timeGraph,
                                         pointRadius: 5,
                                     },
                                 ],
@@ -146,7 +158,32 @@ function App() {
                             }}
                         />
                     ) : (
-                        <p>Complexity Graphs!</p>
+                        <p>Runtime Graphs!</p>
+                    )}
+                </div>
+
+                <div className="box" style={{ background: "white" }}>
+                    {memoryGraph && memoryGraph.length > 0 ? (
+                        <Scatter
+                            data={{
+                                datasets: [
+                                    {
+                                        label: "Input Size vs Time (ms)",
+                                        data: memoryGraph,
+                                        pointRadius: 5,
+                                    },
+                                ],
+                            }}
+                            options={{
+                                responsive: true,
+                                scales: {
+                                    x: { title: { display: true, text: "Input Size" } },
+                                    y: { title: { display: true, text: "Execution Time (ms)" } }
+                                }
+                            }}
+                        />
+                    ) : (
+                        <p>Memory Usage Graphs!</p>
                     )}
                 </div>
             </div>
