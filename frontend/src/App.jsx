@@ -91,6 +91,18 @@ function App() {
         setMemoryGraph([]);
     }
 
+    function getType() {
+        const inputString = testInput.trim();
+        if (inputString[0] != "[" || inputString[-1] != "]") {
+            setTestInput("Test cases must be in list\nExample: [1,2,3]");
+            return null;
+        }
+
+        // Send inputString to backend and check cases:
+        //  1. JSON.parse does not work
+        //  2. Each individual test case must be the same type
+    }
+
     // Parses string input/time pairs into points for graphing
     function parseComplexityOutput(text) {
         return text
