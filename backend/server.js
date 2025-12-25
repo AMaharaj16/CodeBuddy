@@ -194,6 +194,12 @@ app.post("/analyzememory", async (req, res) => {
         });
 });
 
+app.post("/getType", async (req, res) => {
+    const {testInputString} = req.body;
+
+    
+})
+
 // Shown in terminal to ensure backend is running
 app.listen(8000, () => {
   console.log("Server running on port 8000");

@@ -34,13 +34,23 @@ function App() {
         setTimeText("Running test cases...");
         setMemoryText("Running test cases...");
 
+        let inputType;
+
+        try {
+            inputType = getType();
+        } catch (error) {
+            setTestInput(error.message);
+            return;
+        }
+
         // Run test cases here and pass it to set output function
         const run = await fetch("http://localhost:8000/runtests", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 code: codeInput,
-                testInput: testInput
+                testInput: testInput,
+                type: inputType
              })
         });
 
@@ -91,16 +101,27 @@ function App() {
         setMemoryGraph([]);
     }
 
-    function getType() {
+    async function getType() {
         const inputString = testInput.trim();
-        if (inputString[0] != "[" || inputString[-1] != "]") {
-            setTestInput("Test cases must be in list\nExample: [1,2,3]");
-            return null;
+
+        if (inputString == "") {
+            throw new Error("Please add input tests here.")
         }
 
         // Send inputString to backend and check cases:
-        //  1. JSON.parse does not work
-        //  2. Each individual test case must be the same type
+        //  1. It is not a list
+        //  2. JSON.parse does not work
+        //  3. Each individual test case must be the same type
+
+        const type = await fetch("http://localhost:8000/getType", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                code: inputString
+             })
+        }); 
+
+        return type;
     }
 
     // Parses string input/time pairs into points for graphing
