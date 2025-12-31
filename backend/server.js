@@ -221,7 +221,7 @@ app.post("/getType", async (req, res) => {
         }
     }
 
-    return expectedType;
+    return res.json({ type: expectedType });
 })
 
 // Shown in terminal to ensure backend is running

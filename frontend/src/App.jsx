@@ -30,6 +30,9 @@ function App() {
     // Backend returns code execution and performance results
     // Updates necessary variables to be displayed in UI
     async function analyzecomplexities() {
+        setCodeOutput("");
+        setTimeText("");
+        setMemoryText("");
 
         let inputType;
         try {
@@ -118,17 +121,17 @@ function App() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
-                code: inputString
+                testInputString: inputString
              })
         }); 
 
+        const data = await result.json();
+
         if (!result.ok) {
-            const data = await result.json();
             throw new Error(data.error || "Server error");
         }
 
-        const type = await result.text();
-        return type;
+        return data.type;
     }
 
     // Parses string input/time pairs into points for graphing
