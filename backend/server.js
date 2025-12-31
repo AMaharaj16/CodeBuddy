@@ -197,7 +197,31 @@ app.post("/analyzememory", async (req, res) => {
 app.post("/getType", async (req, res) => {
     const {testInputString} = req.body;
 
-    
+    let parsedInput;
+
+    try {
+        parsedInput = JSON.parse(testInputString);
+    } catch (err) {
+        return res.status(400).json({ error: "Test inputs cannot be parsed." });
+    }
+
+    if (!Array.isArray(parsedInput)) {
+        return res.status(400).json({
+            error: "Test inputs must be in list format. Example: [1,2,3]"
+        });
+    }
+
+    const expectedType = typeof parsedInput[0];
+
+    for (let i=0; i < parsedInput.length; i++) {
+        if (typeof parsedInput[i] != expectedType) {
+            return res.status(400).json({
+                error: "All test inputs must be the same type."
+            });
+        }
+    }
+
+    return expectedType;
 })
 
 // Shown in terminal to ensure backend is running

@@ -30,18 +30,18 @@ function App() {
     // Backend returns code execution and performance results
     // Updates necessary variables to be displayed in UI
     async function analyzecomplexities() {
-        setCodeOutput("Running test cases...");
-        setTimeText("Running test cases...");
-        setMemoryText("Running test cases...");
 
         let inputType;
-
         try {
-            inputType = getType();
+            inputType = await getType();
         } catch (error) {
             setTestInput(error.message);
             return;
         }
+
+        setCodeOutput("Running test cases...");
+        setTimeText("Running test cases...");
+        setMemoryText("Running test cases...");
 
         // Run test cases here and pass it to set output function
         const run = await fetch("http://localhost:8000/runtests", {
@@ -112,8 +112,9 @@ function App() {
         //  1. It is not a list
         //  2. JSON.parse does not work
         //  3. Each individual test case must be the same type
+        //  Then return type of first input
 
-        const type = await fetch("http://localhost:8000/getType", {
+        const result = await fetch("http://localhost:8000/getType", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -121,6 +122,12 @@ function App() {
              })
         }); 
 
+        if (!result.ok) {
+            const data = await result.json();
+            throw new Error(data.error || "Server error");
+        }
+
+        const type = await result.text();
         return type;
     }
 
