@@ -103,6 +103,7 @@ app.post("/analyzetime", async (req, res) => {
         const script = new vm.Script(wrappedCode);
 
         start = performance.now();
+
         try {
             script.runInContext(sandbox, { timeout : maxTime });
         } catch(err) {
@@ -114,7 +115,7 @@ app.post("/analyzetime", async (req, res) => {
         
         end = performance.now();
         time = end - start;
-
+        
         outputs += input.toString() + " : " + time.toString() + "\n";
     } catch(err) {
         res.json({
@@ -211,16 +212,35 @@ app.post("/getType", async (req, res) => {
         });
     }
 
-    const expectedType = typeof parsedInput[0];
+    let expectedType;
+    let array;
 
-    for (let i=0; i < parsedInput.length; i++) {
-        if (typeof parsedInput[i] != expectedType) {
-            return res.status(400).json({
-                error: "All test inputs must be the same type."
-            });
-        }
+    if (Array.isArray(parsedInput[0])) {
+        expectedType = "array";
+        array = true;
+    } else {
+        expectedType = typeof parsedInput[0];
+        array = false;
     }
 
+    if (array) {
+        for (let i=0; i < parsedInput.length; i++) {
+            if (!Array.isArray(parsedInput[i])) {
+                return res.status(400).json({
+                    error: "All test inputs must be the same type."
+                });
+            }
+        }
+    } else {
+        for (let i=0; i < parsedInput.length; i++) {
+            if (typeof parsedInput[i] != expectedType) {
+                return res.status(400).json({
+                    error: "All test inputs must be the same type."
+                });
+            }
+        }
+    }
+    
     return res.json({ type: expectedType });
 })
 
