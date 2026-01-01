@@ -34,6 +34,21 @@ function App() {
         setTimeText("");
         setMemoryText("");
 
+        const isFunction = await fetch("http://localhost:8000/isFunction", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                code: codeInput,
+             })
+        });
+
+        const isFunctionOutput = await isFunction.json()
+
+        if (!isFunctionOutput.output) {
+            setCodeInput("Please input a JavaScript function here.")
+            return;
+        }
+
         let inputType;
         try {
             inputType = await getType();

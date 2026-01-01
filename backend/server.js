@@ -16,6 +16,17 @@ app.use(
 
 app.use(express.json());
 
+app.post("/isFunction", async (req, res) => {
+    const { code } = req.body;
+
+    let isFunction =  /^\s*(function|\([\s\S]*?\)\s*=>|[a-zA-Z_$][\w$]*\s*=>)/.test(code);
+
+    res.json({
+        output: isFunction
+    })
+})
+
+
 // Runs when React calls POST /analyze
 app.post("/runtests", async (req, res) => {
   const { code, testInput} = req.body;
