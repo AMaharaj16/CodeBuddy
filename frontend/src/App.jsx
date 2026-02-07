@@ -52,6 +52,7 @@ function App() {
         let inputType;
         try {
             inputType = await getType();
+            alert("type:" + inputType)
         } catch (error) {
             setTestInput(error.message);
             return;
@@ -67,8 +68,7 @@ function App() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 code: codeInput,
-                testInput: testInput,
-                type: inputType
+                testInput: testInput
              })
         });
 
@@ -82,7 +82,8 @@ function App() {
             body: JSON.stringify({ 
                 code: codeInput,
                 testInput: JSON.parse(testInput)[0], // Send first test input for analysis, will be scaled for graphing
-                testScale: testScale
+                testScale: testScale,
+                type: inputType
              })
         }); 
 
@@ -98,7 +99,8 @@ function App() {
             body: JSON.stringify({ 
                 code: codeInput,
                 testInput: JSON.parse(testInput)[0], // Send first test input for analysis, will be scaled for graphing
-                testScale: testScale
+                testScale: testScale,
+                type: inputType
              })
         }); 
 

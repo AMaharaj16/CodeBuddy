@@ -27,7 +27,7 @@ app.post("/isFunction", async (req, res) => {
 })
 
 
-// Runs when React calls POST /analyze
+// Runs when React calls POST /runtests
 app.post("/runtests", async (req, res) => {
   const { code, testInput} = req.body;
 
@@ -75,8 +75,9 @@ app.post("/runtests", async (req, res) => {
   return;
 });
 
+// Runs when React calls POST /analyzetime
 app.post("/analyzetime", async (req, res) => {
-   const { code, testInput, testScale} = req.body;
+   const { code, testInput, testScale, type} = req.body;
 
    let outputs = "";
    let testInputs = [];
@@ -84,10 +85,16 @@ app.post("/analyzetime", async (req, res) => {
    const maxTime = 5000; // If any case exceeds 5 seconds, return time limit exceeded warning.
    
    // Create n inputs, each n times larger than the first test input.
-   // In descending order so first case is largest and time limit exceeded warning returns sooner.
-   for (let i = testScale; i > 0; i--) {
-    testInputs.push(testInput*i);
+   if (type == "array"){
+    // This concatenates the array with itself testScale times.
+    testInputs = Array(testScale).fill(testInput).flat();
+   } else {
+    // In descending order so first case is largest and time limit exceeded warning returns sooner.
+    for (let i = testScale; i > 0; i--) {
+        testInputs.push(testInput*i);
+    }
    }
+   
 
    let start = 0;
    let end = 0;
@@ -141,8 +148,9 @@ app.post("/analyzetime", async (req, res) => {
         });
 });
 
+// Runs when React calls POST /analyzememory
 app.post("/analyzememory", async (req, res) => {
-   const { code, testInput, testScale} = req.body;
+   const { code, testInput, testScale, type} = req.body;
 
    let outputs = "";
    let testInputs = [];
@@ -150,10 +158,16 @@ app.post("/analyzememory", async (req, res) => {
    const maxTime = 5000; // If any case exceeds 5 seconds, return time limit exceeded warning.
    
    // Create n inputs, each n times larger than the first test input.
-   // In descending order so first case is largest and time limit exceeded warning returns sooner.
-   for (let i = testScale; i > 0; i--) {
-    testInputs.push(testInput*i);
+   if (type == "array"){
+    // This concatenates the array with itself testScale times.
+    testInputs = Array(testScale).fill(testInput).flat();
+   } else{
+    // In descending order so first case is largest and time limit exceeded warning returns sooner.
+    for (let i = testScale; i > 0; i--) {
+        testInputs.push(testInput*i);
+    }
    }
+   
 
    let start = 0;
    let end = 0;
