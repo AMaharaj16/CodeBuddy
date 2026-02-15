@@ -52,7 +52,6 @@ function App() {
         let inputType;
         try {
             inputType = await getType();
-            alert("type:" + inputType)
         } catch (error) {
             setTestInput(error.message);
             return;
