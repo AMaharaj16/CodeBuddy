@@ -85,16 +85,14 @@ app.post("/analyzetime", async (req, res) => {
    const maxTime = 5000; // If any case exceeds 5 seconds, return time limit exceeded warning.
    
    // Create n inputs, each n times larger than the first test input.
-   if (type == "array"){
-    // This concatenates the array with itself testScale times.
-    testInputs = Array(testScale).fill(testInput).flat();
+   if (type == "array") {
+    testInputs = scaleInput(testInput, parseInt(testScale))
    } else {
     // In descending order so first case is largest and time limit exceeded warning returns sooner.
     for (let i = testScale; i > 0; i--) {
         testInputs.push(testInput*i);
     }
    }
-   
 
    let start = 0;
    let end = 0;
@@ -134,7 +132,11 @@ app.post("/analyzetime", async (req, res) => {
         end = performance.now();
         time = end - start;
         
-        outputs += input.toString() + " : " + time.toString() + "\n";
+        if (type == "array") {
+            outputs += input.length + " : " + time.toString() + "\n";
+        } else {
+            outputs += input.toString() + " : " + time.toString() + "\n";
+        }
     } catch(err) {
         res.json({
           output: "Error: " + err.message,
@@ -159,8 +161,7 @@ app.post("/analyzememory", async (req, res) => {
    
    // Create n inputs, each n times larger than the first test input.
    if (type == "array"){
-    // This concatenates the array with itself testScale times.
-    testInputs = Array(testScale).fill(testInput).flat();
+    testInputs = scaleInput(testInput, parseInt(testScale))
    } else{
     // In descending order so first case is largest and time limit exceeded warning returns sooner.
     for (let i = testScale; i > 0; i--) {
@@ -168,7 +169,6 @@ app.post("/analyzememory", async (req, res) => {
     }
    }
    
-
    let start = 0;
    let end = 0;
    let memory = 0;
@@ -206,7 +206,13 @@ app.post("/analyzememory", async (req, res) => {
         end = process.memoryUsage();
         memory = end.heapUsed - start.heapUsed;
 
-        outputs += input.toString() + " : " + memory.toString() + "\n";
+        if (memory < 0) continue;
+
+        if (type == "array") {
+            outputs += input.length + " : " + memory.toString() + "\n";
+        } else {  
+            outputs += input.toString() + " : " + memory.toString() + "\n";
+        }
     } catch(err) {
         res.json({
           output: "Error: " + err.message,
@@ -268,6 +274,25 @@ app.post("/getType", async (req, res) => {
     
     return res.json({ type: expectedType });
 })
+
+// This concatenates the array with itself testScale times.
+// Example: testInput = [1,2] and testScale = 3
+// Output: [[1,2], [1,2,1,2], [1,2,1,2,1,2]]
+//            1x      2x           3x
+function scaleInput(testInput, testScale) {
+    const result = [];
+
+    for (let i = 1; i <= testScale; i++) {
+        const scaled = [];
+        for (let j = 0; j < i; j++) {
+            scaled.push(...testInput);
+        }
+        result.push(scaled);
+    }
+
+    return result;
+}
+
 
 // Shown in terminal to ensure backend is running
 app.listen(8000, () => {
