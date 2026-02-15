@@ -167,6 +167,7 @@ function App() {
 
     return (
     <div>
+        <h1 className="title">CodeBuddy</h1>
         <div className="row">
             <div className="column">
                 <textarea
@@ -213,7 +214,7 @@ function App() {
                 placeholder="Test Scale!"
                 />
 
-                <div className="box" style={{ background: "white" }}>
+                <div className="box graph-box">
                     {timeGraph && timeGraph.length > 0 ? (
                         <Scatter
                             data={{
@@ -221,7 +222,9 @@ function App() {
                                     {
                                         label: "Input Size vs Time (ms)",
                                         data: timeGraph,
-                                        pointRadius: 5,
+                                        pointRadius: 1,
+                                        backgroundColor: "#00f7ff",
+                                        borderColor: "#00f7ff",
                                     },
                                 ],
                             }}
@@ -234,11 +237,11 @@ function App() {
                             }}
                         />
                     ) : (
-                        <p>Runtime Graphs!</p>
+                        <p>Runtime Graph</p>
                     )}
                 </div>
 
-                <div className="box" style={{ background: "white" }}>
+                <div className="box graph-box">
                     {memoryGraph && memoryGraph.length > 0 ? (
                         <Scatter
                             data={{
@@ -246,7 +249,9 @@ function App() {
                                     {
                                         label: "Input Size vs Memory (bytes)",
                                         data: memoryGraph,
-                                        pointRadius: 5,
+                                        pointRadius: 1,
+                                        backgroundColor: "#00f7ff",
+                                        borderColor: "#00f7ff",
                                     },
                                 ],
                             }}
@@ -259,7 +264,7 @@ function App() {
                             }}
                         />
                     ) : (
-                        <p>Memory Usage Graphs!</p>
+                        <p>Memory Usage Graph</p>
                     )}
                 </div>
             </div>
