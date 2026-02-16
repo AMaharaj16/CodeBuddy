@@ -85,8 +85,8 @@ app.post("/analyzetime", async (req, res) => {
    const maxTime = 5000; // If any case exceeds 5 seconds, return time limit exceeded warning.
    
    // Create n inputs, each n times larger than the first test input.
-   if (type == "array") {
-    testInputs = scaleInput(testInput, parseInt(testScale))
+   if (type == "array" || type == "string") {
+    testInputs = scaleInputArray(testInput, parseInt(testScale))
    } else {
     // In descending order so first case is largest and time limit exceeded warning returns sooner.
     for (let i = testScale; i > 0; i--) {
@@ -132,7 +132,7 @@ app.post("/analyzetime", async (req, res) => {
         end = performance.now();
         time = end - start;
         
-        if (type == "array") {
+        if (type == "array" || type == "string") {
             outputs += input.length + " : " + time.toString() + "\n";
         } else {
             outputs += input.toString() + " : " + time.toString() + "\n";
@@ -160,9 +160,9 @@ app.post("/analyzememory", async (req, res) => {
    const maxTime = 5000; // If any case exceeds 5 seconds, return time limit exceeded warning.
    
    // Create n inputs, each n times larger than the first test input.
-   if (type == "array"){
-    testInputs = scaleInput(testInput, parseInt(testScale))
-   } else{
+   if (type == "array" || type == "string"){
+    testInputs = scaleInputArray(testInput, parseInt(testScale));
+   } else {
     // In descending order so first case is largest and time limit exceeded warning returns sooner.
     for (let i = testScale; i > 0; i--) {
         testInputs.push(testInput*i);
@@ -208,7 +208,7 @@ app.post("/analyzememory", async (req, res) => {
 
         if (memory < 0) continue;
 
-        if (type == "array") {
+        if (type == "array" || type == "string") {
             outputs += input.length + " : " + memory.toString() + "\n";
         } else {  
             outputs += input.toString() + " : " + memory.toString() + "\n";
@@ -277,12 +277,12 @@ app.post("/getType", async (req, res) => {
 
 // This concatenates the array with itself testScale times.
 // Example: testInput = [1,2] and testScale = 3
-// Output: [[1,2], [1,2,1,2], [1,2,1,2,1,2]]
-//            1x      2x           3x
-function scaleInput(testInput, testScale) {
+// Output: [[1,2,1,2,1,2], [1,2,1,2], [1,2]]
+//               3x           2x        1x
+function scaleInputArray(testInput, testScale) {
     const result = [];
 
-    for (let i = 1; i <= testScale; i++) {
+    for (let i = testScale; i >= 1; i--) {
         const scaled = [];
         for (let j = 0; j < i; j++) {
             scaled.push(...testInput);
