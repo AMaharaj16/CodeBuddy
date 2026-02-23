@@ -1,7 +1,12 @@
 import express from "express";
 import cors from "cors";
 import vm from "vm";
+import { createObjectCsvWriter } from 'csv-writer';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 
 // CORS allows React and backend communication
@@ -143,8 +148,21 @@ app.post("/analyzetime", async (req, res) => {
         });
         return;
     }
-   };
-   res.json({
+    };
+
+    const csvWriter = createObjectCsvWriter({
+        path: path.join(__dirname, 'runtime.csv'),
+        header: [
+            { id: 'input', title: 'Input' },
+            { id: 'runtime', title: 'Runtime' }
+        ]
+    });
+
+    // Write the CSV
+    await csvWriter.writeRecords(outputs);
+    console.log('Runtime CSV file written successfully!');
+
+    res.json({
             output: outputs
         });
 });
