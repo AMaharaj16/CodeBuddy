@@ -26,6 +26,9 @@ function App() {
     const [memoryGraph, setMemoryGraph] = useState([]);
     const [memoryText, setMemoryText] = useState("");
 
+    const [runtimeComplexityText, setRuntimeComplexityText] = useState("");
+    const [memoryComplexityText, setMemoryComplexityText] = useState("");
+
     // Sends data to backend server (FastAPI) via POST
     // Backend returns code execution and performance results
     // Updates necessary variables to be displayed in UI
@@ -33,6 +36,8 @@ function App() {
         setCodeOutput("");
         setTimeText("");
         setMemoryText("");
+        setRuntimeComplexityText("");
+        setMemoryComplexityText("");
 
         const isFunction = await fetch("http://localhost:8000/isFunction", {
             method: "POST",
@@ -90,6 +95,11 @@ function App() {
         const timeOutput = await time.json();
         setTimeText(parseTextOutput(timeOutput.output, "time"));
         setTimeGraph(parseGraphOutput(timeOutput.output, "time")); // Parse input/time pairs for graphing
+        setRuntimeComplexityText(
+            timeOutput.runtimeComplexity && timeOutput.runtimeComplexity.complexity
+                ? `Time Complexity: O(${timeOutput.runtimeComplexity.complexity})`
+                : "Time Complexity: N/A"
+        );
 
         // Run first test case with test scale and parse input/memory pairs
         const memory = await fetch("http://localhost:8000/analyzememory", {
@@ -107,6 +117,11 @@ function App() {
         const memoryOutput = await memory.json();
         setMemoryText(parseTextOutput(memoryOutput.output, "memory"));
         setMemoryGraph(parseGraphOutput(memoryOutput.output, "memory")); // Parse input/memory pairs for graphing
+        setMemoryComplexityText(
+            memoryOutput.memoryComplexity && memoryOutput.memoryComplexity.complexity
+                ? `Memory Complexity: O(${memoryOutput.memoryComplexity.complexity})`
+                : "Memory Complexity: N/A"
+        );
     }
 
     function resetPage() {
@@ -223,7 +238,12 @@ function App() {
                 placeholder="Test Scale!"
                 />
 
-                <div className="box graph-box">
+                <div className="box graph-box" style={{position: 'relative'}}>
+                    {runtimeComplexityText && (
+                        <div className="complexity-overlay runtime-overlay">
+                            {runtimeComplexityText}
+                        </div>
+                    )}
                     {timeGraph && timeGraph.length > 0 ? (
                         <Scatter
                             data={{
@@ -250,7 +270,12 @@ function App() {
                     )}
                 </div>
 
-                <div className="box graph-box">
+                <div className="box graph-box" style={{position: 'relative'}}>
+                    {memoryComplexityText && (
+                        <div className="complexity-overlay memory-overlay">
+                            {memoryComplexityText}
+                        </div>
+                    )}
                     {memoryGraph && memoryGraph.length > 0 ? (
                         <Scatter
                             data={{

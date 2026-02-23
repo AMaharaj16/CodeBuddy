@@ -51,3 +51,28 @@ body {
     border-color: #00f7ff;
     box-shadow: 0 0 15px rgba(0, 247, 255, 0.2);
 }
+
+.complexity-overlay {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: rgba(34, 34, 34, 0.92);
+    color: #00f7ff;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 247, 255, 0.08);
+    z-index: 2;
+    pointer-events: none;
+    transition: background 0.2s;
+}
+
+.runtime-overlay {
+    border: 1px solid #00f7ff;
+}
+
+.memory-overlay {
+    border: 1px solid #ff00f7;
+    color: #ff00f7;
+}

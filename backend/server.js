@@ -4,6 +4,7 @@ import vm from "vm";
 import { createObjectCsvWriter } from 'csv-writer';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { analyzeRuntimeComplexity, analyzeMemoryComplexity } from './complexities/regression.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -162,8 +163,12 @@ app.post("/analyzetime", async (req, res) => {
     await csvWriter.writeRecords(outputs);
     console.log('Runtime CSV file written successfully!');
 
+    // Analyze runtime complexity
+    const runtimeComplexity = await analyzeRuntimeComplexity();
+
     res.json({
-            output: outputs
+            output: outputs,
+            runtimeComplexity: runtimeComplexity
         });
 });
 
@@ -236,9 +241,7 @@ app.post("/analyzememory", async (req, res) => {
         });
         return;
     }
-   };
-
-   const csvWriter = createObjectCsvWriter({
+   };    const csvWriter = createObjectCsvWriter({
         path: path.join(__dirname, 'data/memoryusage.csv'),
         header: [
             { id: 'input', title: 'Input' },
@@ -250,8 +253,12 @@ app.post("/analyzememory", async (req, res) => {
     await csvWriter.writeRecords(outputs);
     console.log('Memory CSV file written successfully!');
 
+    // Analyze memory complexity
+    const memoryComplexity = await analyzeMemoryComplexity();
+
    res.json({
-            output: outputs
+            output: outputs,
+            memoryComplexity: memoryComplexity
         });
 });
 
