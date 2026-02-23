@@ -151,7 +151,7 @@ app.post("/analyzetime", async (req, res) => {
     };
 
     const csvWriter = createObjectCsvWriter({
-        path: path.join(__dirname, 'runtime.csv'),
+        path: path.join(__dirname, 'data/runtime.csv'),
         header: [
             { id: 'input', title: 'Input' },
             { id: 'runtime', title: 'Runtime' }
@@ -239,7 +239,7 @@ app.post("/analyzememory", async (req, res) => {
    };
 
    const csvWriter = createObjectCsvWriter({
-        path: path.join(__dirname, 'memoryusage.csv'),
+        path: path.join(__dirname, 'data/memoryusage.csv'),
         header: [
             { id: 'input', title: 'Input' },
             { id: 'memory', title: 'MemoryUsage' }
