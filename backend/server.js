@@ -238,6 +238,18 @@ app.post("/analyzememory", async (req, res) => {
     }
    };
 
+   const csvWriter = createObjectCsvWriter({
+        path: path.join(__dirname, 'memoryusage.csv'),
+        header: [
+            { id: 'input', title: 'Input' },
+            { id: 'memory', title: 'MemoryUsage' }
+        ]
+    });
+
+    // Write the CSV
+    await csvWriter.writeRecords(outputs);
+    console.log('Memory CSV file written successfully!');
+
    res.json({
             output: outputs
         });
