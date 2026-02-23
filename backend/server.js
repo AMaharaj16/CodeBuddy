@@ -144,7 +144,6 @@ app.post("/analyzetime", async (req, res) => {
         return;
     }
    };
-   console.log(outputs);
    res.json({
             output: outputs
         });
