@@ -89,8 +89,8 @@ function App() {
 
         // String containing input/time pairs
         const timeOutput = await time.json();
-        setTimeText(timeOutput.output);
-        setTimeGraph(parseComplexityOutput(timeOutput.output)); // Parse input/time pairs for graphing
+        setTimeText(parseTextOutput(timeOutput.output, "time"));
+        setTimeGraph(parseGraphOutput(timeOutput.output, "time")); // Parse input/time pairs for graphing
 
         // Run first test case with test scale and parse input/memory pairs
         const memory = await fetch("http://localhost:8000/analyzememory", {
@@ -106,8 +106,8 @@ function App() {
 
         // String containing input/time pairs
         const memoryOutput = await memory.json();
-        setMemoryText(memoryOutput.output);
-        setMemoryGraph(parseComplexityOutput(memoryOutput.output)); // Parse input/memory pairs for graphing
+        setMemoryText(parseTextOutput(memoryOutput.output, "memory"));
+        setMemoryGraph(parseGraphOutput(memoryOutput.output, "memory")); // Parse input/memory pairs for graphing
     }
 
     function resetPage() {
@@ -151,18 +151,28 @@ function App() {
         return data.type;
     }
 
-    // Parses string input/time pairs into points for graphing
-    function parseComplexityOutput(text) {
-        return text
-            .trim()
-            .split("\n")
-            .map(line => {
-                const [input, usage] = line.split(":").map(s => s.trim());
-                return {
-                    x: Number(input),
-                    y: Number(usage)
-                };
-            });
+    // Converts array of { input, runtime/memory } objects into string for display
+    function parseTextOutput(data, useCase) {
+        if (useCase == "memory") {
+            return data.map(item => `${item.input} : ${item.memory}`).join("\n");
+        } else {
+            return data.map(item => `${item.input} : ${item.runtime}`).join("\n");
+        }
+    }
+    // Converts array of { input, runtime/memory } objects into { x, y } points for graphing
+    function parseGraphOutput(data, useCase) {
+        if (useCase == "memory") {
+            return data.map(item => ({
+                x: item.input,
+                y: item.memory
+            }));
+        } else {
+            return data.map(item => ({
+                x: item.input,
+                y: item.runtime
+            }));
+        }
+        
     }
 
     return (

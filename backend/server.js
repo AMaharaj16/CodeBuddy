@@ -79,7 +79,7 @@ app.post("/runtests", async (req, res) => {
 app.post("/analyzetime", async (req, res) => {
    const { code, testInput, testScale, type} = req.body;
 
-   let outputs = "";
+   let outputs = [];
    let testInputs = [];
 
    const maxTime = 5000; // If any case exceeds 5 seconds, return time limit exceeded warning.
@@ -133,9 +133,9 @@ app.post("/analyzetime", async (req, res) => {
         time = end - start;
         
         if (type == "array" || type == "string") {
-            outputs += input.length + " : " + time.toString() + "\n";
+            outputs.push({input: input.length, runtime: time});
         } else {
-            outputs += input.toString() + " : " + time.toString() + "\n";
+            outputs.push({input: input, runtime: time})
         }
     } catch(err) {
         res.json({
@@ -144,7 +144,7 @@ app.post("/analyzetime", async (req, res) => {
         return;
     }
    };
-
+   console.log(outputs);
    res.json({
             output: outputs
         });
@@ -154,7 +154,7 @@ app.post("/analyzetime", async (req, res) => {
 app.post("/analyzememory", async (req, res) => {
    const { code, testInput, testScale, type} = req.body;
 
-   let outputs = "";
+   let outputs = [];
    let testInputs = [];
 
    const maxTime = 5000; // If any case exceeds 5 seconds, return time limit exceeded warning.
@@ -209,9 +209,9 @@ app.post("/analyzememory", async (req, res) => {
         if (memory < 0) continue;
 
         if (type == "array" || type == "string") {
-            outputs += input.length + " : " + memory.toString() + "\n";
+            outputs.push({input: input.length, memory: memory});
         } else {  
-            outputs += input.toString() + " : " + memory.toString() + "\n";
+            outputs.push({input: input, memory: memory});
         }
     } catch(err) {
         res.json({
