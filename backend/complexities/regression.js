@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 const runtimePath = path.join(__dirname, '../data/runtime.csv');
 const memoryPath = path.join(__dirname, '../data/memoryusage.csv');
 
-const MIN_SLOPE = 0.0001
+const MIN_SLOPE = 0.00001
 
 async function readCSV(filePath, valueColumn) {
     const results = [];
