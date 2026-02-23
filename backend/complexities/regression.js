@@ -9,6 +9,8 @@ const __dirname = path.dirname(__filename);
 const runtimePath = path.join(__dirname, '../data/runtime.csv');
 const memoryPath = path.join(__dirname, '../data/memoryusage.csv');
 
+const MIN_SLOPE = 0.0001
+
 async function readCSV(filePath, valueColumn) {
     const results = [];
     for await (const row of fs.createReadStream(filePath).pipe(csv())) {
@@ -62,21 +64,51 @@ function transformInput(xArr, model) {
     }
 }
 
+function removeOutliers(X, y) {
+    const sorted = [...y].sort((a,b) => a-b);
+    const q1 = sorted[Math.floor(sorted.length/4)];
+    const q3 = sorted[Math.floor(sorted.length*3/4)];
+    const iqr = q3 - q1;
+    const lower = q1 - 1.5*iqr;
+    const upper = q3 + 1.5*iqr;
+
+    const Xf = [], yf = [];
+    for (let i=0; i<y.length; i++) {
+        if (y[i] >= lower && y[i] <= upper) {
+            Xf.push(X[i]);
+            yf.push(y[i]);
+        }
+    }
+    return { X: Xf, y: yf };
+}
+
 // Fit all models and pick best
 export function detectComplexity(X, y) {
+    const { X: filteredX, y: filteredY } = removeOutliers(X, y);
+
+    const maxY = Math.max(...y);
+    const minY = Math.min(...y);
+
+    if (new Set(y).size <= 0.05*filteredX.length || (maxY - minY)/minY < 0.05) {
+        return { complexity: '1', r2: 1 };
+    }
+
     const models = ['1','logn','n','nlogn','n^2','n^3','n^4','2^n','n^n'];
     let bestR2 = -Infinity;
     let bestModel = null;
 
     for (const model of models) {
-        let xTrans = transformInput(X, model);
-        let yTrans = [...y];
+        let xTrans = transformInput(filteredX, model);
+        let yTrans = [...filteredY];
 
         if (model === '2^n' || model === 'n^n') {
-            yTrans = y.map(v => Math.log(v));
+            yTrans = filteredY.map(v => Math.log(v));
         }
 
         const reg = new SimpleLinearRegression(xTrans, yTrans);
+
+        if (Math.abs(reg.slope) < MIN_SLOPE) continue;
+
         const yPred = xTrans.map(v => reg.predict(v));
 
         const r2 = r2Score(yTrans, yPred);
@@ -85,8 +117,8 @@ export function detectComplexity(X, y) {
             bestR2 = r2;
             bestModel = model;
         }
+        console.log("Slope: ", reg.slope, "  Model: ", bestModel);
     }
-
     return { complexity: bestModel, r2: bestR2 };
 }
 

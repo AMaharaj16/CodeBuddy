@@ -140,8 +140,10 @@ app.post("/analyzetime", async (req, res) => {
         
         if (type == "array" || type == "string") {
             outputs.push({input: input.length, runtime: time});
+            console.log("Input: ", input.length, " Time: ", time);
         } else {
             outputs.push({input: input, runtime: time})
+            console.log("Input: ", input, " Time: ", time);
         }
     } catch(err) {
         res.json({
@@ -232,8 +234,10 @@ app.post("/analyzememory", async (req, res) => {
 
         if (type == "array" || type == "string") {
             outputs.push({input: input.length, memory: memory});
+            console.log("Input: ", input.length, " Memory: ", memory);
         } else {  
             outputs.push({input: input, memory: memory});
+            console.log("Input: ", input, " Memory: ", memory);
         }
     } catch(err) {
         res.json({
