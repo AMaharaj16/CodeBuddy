@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import vm from "vm";
+import rateLimit from "express-rate-limit";
 import { createObjectCsvWriter } from 'csv-writer';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -13,14 +14,22 @@ const app = express();
 // CORS allows React and backend communication
 app.use(
   cors({
-    origin: "http://localhost:5173", // React server
+    origin: [
+        "http://localhost:5173", // React server
+        "" 
+    ],
     credentials: true,
     methods: ["*"],
     allowedHeaders: ["*"],
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb"}));
+
+app.use(rateLimit({
+  windowMs: 60 * 1000,
+  max: 30
+}));
 
 app.post("/isFunction", async (req, res) => {
     const { code } = req.body;
@@ -335,6 +344,6 @@ function scaleInputArray(testInput, testScale) {
 
 
 // Shown in terminal to ensure backend is running
-app.listen(8000, () => {
+app.listen(8000, "0.0.0.0", () => {
   console.log("Server running on port 8000");
 });
