@@ -11,6 +11,8 @@ import {
 
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend);
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function App() {
     // useState returns its parameter (variable set equal to it) 
     // and a function to change the variables value at render.
@@ -39,7 +41,7 @@ function App() {
         setRuntimeComplexityText("");
         setMemoryComplexityText("");
 
-        const isFunction = await fetch("http://localhost:8000/isFunction", {
+        const isFunction = await fetch(API_URL + "/isFunction", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -67,7 +69,7 @@ function App() {
         setMemoryText("Running test cases...");
 
         // Run test cases here and pass it to set output function
-        const run = await fetch("http://localhost:8000/runtests", {
+        const run = await fetch(API_URL + "/runtests", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -80,7 +82,7 @@ function App() {
         setCodeOutput(JSON.stringify(runOutput.output));
 
         // Run first test case with test scale and parse input/time pairs
-        const time = await fetch("http://localhost:8000/analyzetime", {
+        const time = await fetch(API_URL + "/analyzetime", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -102,7 +104,7 @@ function App() {
         );
 
         // Run first test case with test scale and parse input/memory pairs
-        const memory = await fetch("http://localhost:8000/analyzememory", {
+        const memory = await fetch(API_URL + "/analyzememory", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -148,7 +150,7 @@ function App() {
         //  3. Each individual test case must be the same type
         //  Then return type of first input
 
-        const result = await fetch("http://localhost:8000/getType", {
+        const result = await fetch(API_URL + "/getType", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 

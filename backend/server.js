@@ -4,11 +4,15 @@ import vm from "vm";
 import rateLimit from "express-rate-limit";
 import { createObjectCsvWriter } from 'csv-writer';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { analyzeRuntimeComplexity, analyzeMemoryComplexity } from './complexities/regression.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
+
 const app = express();
 
 // CORS allows React and backend communication
